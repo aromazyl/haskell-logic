@@ -6,7 +6,7 @@
 -- Distributed under terms of the MIT license.
 --
 
-import Prelude hiding (Bool, True, False, not, (&&), (==), (||), (\=))
+import Prelude hiding (Bool, True, False, not, (&&), (==), (||), (\=), and)
 
 data Bool = True | False deriving (Show)
 
@@ -39,8 +39,22 @@ x <=> y = x == y
 (<+>) :: Bool -> Bool -> Bool
 x <+> y = x \= y
 
+and :: [Bool] -> Bool
+and = foldr (&&) True
+
 valid1 :: (Bool -> Bool) -> Bool
 valid1 bs = (bs True) && (bs False)
 
 exclude_middle :: Bool -> Bool
 exclude_middle p = p || (not p)
+
+valid2 :: (Bool -> Bool -> Bool) -> Bool
+valid2 bs = (valid1 (bs True)) && (valid1 (bs False))
+
+logicEquiv1 :: (Bool -> Bool) -> (Bool -> Bool) -> Bool
+logicEquiv1 a b = and ([True, False] >>= \x -> [(a x) <=> (b x)])
+
+makeLogic logicEqv = \a b -> and ([True, False] >>= \x -> [logicEqv (a x) (b x)])
+
+logicEquiv2 = makeLogic logicEquiv1
+logicEquiv3 = makeLogic logicEquiv2
