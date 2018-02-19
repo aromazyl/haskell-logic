@@ -1,0 +1,3 @@
+[submodule "hatt"]
+	path = hatt
+	url = https://github.com/beastaugh/hatt
