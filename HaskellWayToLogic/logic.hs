@@ -10,14 +10,21 @@ module logic where
 
 import Control.Monad.Error
 
-data Atom = Atom Char | Atom String deriving (Eq, Show)
+-- data Atom = Atom Char | Atom String deriving (Eq, Show)
 
-data Expr = Literal Atom
+data Expr = Literal String
           | Contradiction Expr
           | Conjunction Expr Expr
           | Disjunction Expr Expr
           | Deduction Expr Expr
           deriving (Show)
+
+display :: Expr -> String
+display Literal a = a
+display Contradiction exp = "not (" ++ display exp ++ ")"
+display Disjunction exp1 exp2 = "(" ++ display exp1 ++ ") or (" ++ display exp2 ++ ")"
+display Conjunction exp1 exp2 = "(" ++ display exp1 ++ ") and (" ++ display exp2 ++ ")"
+display Deduction exp1 exp2 = display exp1 ++ " -> " ++ display exp2
 
 implTree :: Expr -> Expr
 implTree expr = case expr of
@@ -36,9 +43,12 @@ makeNNF expr = case expr of
                  Contradiction (Contradiction x) -> x
                  Conjunction exp1 exp2 -> Conjunction (makeNNF exp1) (makeNNF exp2)
                  Disjunction exp1 exp2 -> Disjunction (makeNNF exp1) (makeNNF exp2)
-                 Contradiction (Conjunction exp1 exp2) -> Disjunction (makeNNF $ Contradiction exp1) (makeNNF $ Contradiction exp2)
-                 Contradiction (Disjunction exp1 exp2) -> Conjunction (makeNNF $ Contradiction exp1) (makeNNF $ Contradiction exp2)
+                 Contradiction (Conjunction exp1 exp2) ->
+                   Disjunction (makeNNF $ Contradiction exp1) (makeNNF $ Contradiction exp2)
+                 Contradiction (Disjunction exp1 exp2) ->
+                   Conjunction (makeNNF $ Contradiction exp1) (makeNNF $ Contradiction exp2)
                  otherwise -> otherwise
+
 
 makeCNF :: Expr -> Expr
 makeCNF expr = case expr of
