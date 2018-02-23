@@ -19,17 +19,22 @@ data Expr = Literal String
           | Deduction Expr Expr
           deriving (Show)
 
+
 display :: Expr -> String
 display (Literal a) = a
 display (Contradiction exp) = "not (" ++ display exp ++ ")"
 display (Disjunction exp1 exp2) = "(" ++ display exp1 ++ ") or (" ++ display exp2 ++ ")"
 display (Conjunction exp1 exp2) = "(" ++ display exp1 ++ ") and (" ++ display exp2 ++ ")"
-display (Deduction exp1 exp2) = display exp1 ++ " -> " ++ display exp2
+display (Deduction exp1 exp2) = "(" ++ display exp1 ++ ") -> (" ++ display exp2 ++ ")"
 
 implTree :: Expr -> Expr
 implTree expr = case expr of
-                  Deduction exp1 exp2 -> Conjunction (Contradiction exp1) exp2
-                  x -> x
+                  Literal a -> Literal a
+                  Contradiction a -> Contradiction (implTree a)
+                  Conjunction a b -> Conjunction (implTree a) (implTree b)
+                  Disjunction a b -> Disjunction (implTree a) (implTree b)
+                  Deduction exp1 exp2 -> Disjunction (Contradiction $ implTree exp1) (Contradiction $ implTree exp2)
+
 
 distr :: Expr -> Expr -> Expr
 distr exp1 exp2 = case (exp1, exp2) of
