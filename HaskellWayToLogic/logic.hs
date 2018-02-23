@@ -6,7 +6,7 @@
 -- Distributed under terms of the MIT license.
 --
 
--- module logic where
+module Logic where
 
 import Control.Monad.Error
 
