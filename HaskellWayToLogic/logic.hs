@@ -6,7 +6,7 @@
 -- Distributed under terms of the MIT license.
 --
 
-module logic where
+-- module logic where
 
 import Control.Monad.Error
 
@@ -20,11 +20,11 @@ data Expr = Literal String
           deriving (Show)
 
 display :: Expr -> String
-display Literal a = a
-display Contradiction exp = "not (" ++ display exp ++ ")"
-display Disjunction exp1 exp2 = "(" ++ display exp1 ++ ") or (" ++ display exp2 ++ ")"
-display Conjunction exp1 exp2 = "(" ++ display exp1 ++ ") and (" ++ display exp2 ++ ")"
-display Deduction exp1 exp2 = display exp1 ++ " -> " ++ display exp2
+display (Literal a) = a
+display (Contradiction exp) = "not (" ++ display exp ++ ")"
+display (Disjunction exp1 exp2) = "(" ++ display exp1 ++ ") or (" ++ display exp2 ++ ")"
+display (Conjunction exp1 exp2) = "(" ++ display exp1 ++ ") and (" ++ display exp2 ++ ")"
+display (Deduction exp1 exp2) = display exp1 ++ " -> " ++ display exp2
 
 implTree :: Expr -> Expr
 implTree expr = case expr of
@@ -33,8 +33,8 @@ implTree expr = case expr of
 
 distr :: Expr -> Expr -> Expr
 distr exp1 exp2 = case (exp1, exp2) of
-                    (Conjunction eta1 eta2, _) -> Conjunction $ (distr eta1 exp2) (distr eta2 exp2)
-                    (_, Conjunction eta1 eta2) -> Conjunction $ (distr exp1 eta1) (distr exp1 eta2)
+                    (Conjunction eta1 eta2, _) -> Conjunction (distr eta1 exp2) (distr eta2 exp2)
+                    (_, Conjunction eta1 eta2) -> Conjunction (distr exp1 eta1) (distr exp1 eta2)
                     (_,_)                      -> Disjunction exp1 exp2
 
 
