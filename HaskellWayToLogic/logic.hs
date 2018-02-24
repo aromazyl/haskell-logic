@@ -12,16 +12,24 @@ import Control.Monad.Except
 
 -- data Atom = Atom Char | Atom String deriving (Eq, Show)
 
-data Expr = Literal String
+data Atom = Atom String | T0 | T1 deriving (Eq)
+
+instance Show Atom where
+  show (Atom a) = show a
+  show T0 = "False"
+  show T1 = "True"
+
+data Expr = Literal Atom
           | Contradiction Expr
           | Conjunction Expr Expr
           | Disjunction Expr Expr
           | Deduction Expr Expr
-          deriving (Show)
 
+instance Show Expr where
+  show = display
 
 display :: Expr -> String
-display (Literal a) = a
+display (Literal a) = show a
 display (Contradiction exp) = "not (" ++ display exp ++ ")"
 display (Disjunction exp1 exp2) = "(" ++ display exp1 ++ ") v (" ++ display exp2 ++ ")"
 display (Conjunction exp1 exp2) = "(" ++ display exp1 ++ ") ^ (" ++ display exp2 ++ ")"
@@ -45,7 +53,7 @@ distr exp1 exp2 = case (exp1, exp2) of
 
 makeNNF :: Expr -> Expr
 makeNNF expr = case expr of
-                 Contradiction (Contradiction x) -> x
+                 Contradiction (Contradiction x) -> makeNNF x
                  Conjunction exp1 exp2 -> Conjunction (makeNNF exp1) (makeNNF exp2)
                  Disjunction exp1 exp2 -> Disjunction (makeNNF exp1) (makeNNF exp2)
                  Contradiction (Conjunction exp1 exp2) ->
