@@ -9,15 +9,14 @@
 module Logic where
 
 import Control.Monad.Except
+import Data.Map
 
 -- data Atom = Atom Char | Atom String deriving (Eq, Show)
 
-data Atom = Atom String | T0 | T1 deriving (Eq)
+data Atom = Atom String | Atomic Bool deriving (Eq)
 
 instance Show Atom where
   show (Atom a) = show a
-  show T0 = "False"
-  show T1 = "True"
 
 data Expr = Literal Atom
           | Contradiction Expr
@@ -68,3 +67,5 @@ makeCNF expr = case expr of
                  Conjunction exp1 exp2 -> Conjunction (makeCNF exp1) (makeCNF exp2)
                  Disjunction exp1 exp2 -> distr (makeCNF exp1) (makeCNF exp2)
                  otherwise -> otherwise
+
+type Env = Map Expr (Maybe Bool)
