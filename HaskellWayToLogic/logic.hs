@@ -8,7 +8,7 @@
 
 module Logic where
 
-import Control.Monad.Error
+import Control.Monad.Except
 
 -- data Atom = Atom Char | Atom String deriving (Eq, Show)
 
@@ -23,8 +23,8 @@ data Expr = Literal String
 display :: Expr -> String
 display (Literal a) = a
 display (Contradiction exp) = "not (" ++ display exp ++ ")"
-display (Disjunction exp1 exp2) = "(" ++ display exp1 ++ ") or (" ++ display exp2 ++ ")"
-display (Conjunction exp1 exp2) = "(" ++ display exp1 ++ ") and (" ++ display exp2 ++ ")"
+display (Disjunction exp1 exp2) = "(" ++ display exp1 ++ ") v (" ++ display exp2 ++ ")"
+display (Conjunction exp1 exp2) = "(" ++ display exp1 ++ ") ^ (" ++ display exp2 ++ ")"
 display (Deduction exp1 exp2) = "(" ++ display exp1 ++ ") -> (" ++ display exp2 ++ ")"
 
 implTree :: Expr -> Expr
