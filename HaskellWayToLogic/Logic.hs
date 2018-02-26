@@ -24,6 +24,7 @@ data Expr = Literal Atom
           | Conjunction Expr Expr
           | Disjunction Expr Expr
           | Deduction Expr Expr
+          deriving (Eq)
 
 instance Show Expr where
   show = display
