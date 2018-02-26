@@ -10,9 +10,6 @@ module Logic where
 
 import Control.Monad.Except
 import Control.Monad.Identity
-import Control.Monad.Error
-import Control.Monad.Identity
-import Control.Monad.Identity
 import Data.Map
 
 -- data Atom = Atom Char | Atom String deriving (Eq, Show)
@@ -72,4 +69,27 @@ makeCNF expr = case expr of
                  Disjunction exp1 exp2 -> distr (makeCNF exp1) (makeCNF exp2)
                  otherwise -> otherwise
 
-type Env = Map Expr (Maybe Bool)
+hornP :: Expr -> Bool
+hornP expr = case expr of
+               (Literal Atom _) -> True
+               _ -> False
+
+hornA :: Expr -> Bool
+hornA expr = case hornP expr of
+               True -> True
+               _    -> case expr of
+                         Conjunction a b -> hornP && (hornA b)
+                         _ -> False
+
+hornC :: Expr -> Bool
+hornC expr = case expr of
+               Deduction a b -> (&&) (hornA a) (hornP b)
+               _ -> False
+
+hornH :: Expr -> Bool
+hornH expr = case hornC expr of
+               True -> True
+               _    -> case expr of 
+                         Conjunction a b -> (hornC a) && (hornH b)
+
+type Eval a = Identity a
