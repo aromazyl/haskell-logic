@@ -9,6 +9,10 @@
 module Logic where
 
 import Control.Monad.Except
+import Control.Monad.Identity
+import Control.Monad.Error
+import Control.Monad.Identity
+import Control.Monad.Identity
 import Data.Map
 
 -- data Atom = Atom Char | Atom String deriving (Eq, Show)
