@@ -93,4 +93,22 @@ hornH expr = case hornC expr of
                _    -> case expr of 
                          Conjunction a b -> (hornC a) && (hornH b)
 
-type Eval a = Identity a
+type Env = Map Expr Value
+
+type Eval a = ReaderT Env Identity a
+
+type Value = Maybe Bool
+
+runEval :: Env -> Eval a -> a
+runEval env = runIdentity . runReaderT
+
+hornMark :: Expr -> Eval Value
+hornMark (Literal Atom True) = return . return True
+hornMark (Literal Atom False) = return . return False
+hornMark (Literal a) = do
+                      env <- ask
+                      case Map.lookup (Literal a) env of
+                        Nothing -> Nothing
+                        Just True -> return True
+hornMark (xs@())
+
