@@ -10,7 +10,8 @@ module Logic where
 
 import Control.Monad.Except
 import Control.Monad.Identity
-import Data.Map
+import Control.Monad.Reader
+import qualified Data.Map as Map
 
 -- data Atom = Atom Char | Atom String deriving (Eq, Show)
 
@@ -93,7 +94,7 @@ hornH expr = case hornC expr of
                _    -> case expr of 
                          Conjunction a b -> (hornC a) && (hornH b)
 
-type Env = Map Expr Value
+type Env = Map.Map Expr Value
 
 type Eval a = ReaderT Env Identity a
 
