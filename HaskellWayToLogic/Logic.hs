@@ -110,5 +110,3 @@ hornMark (Literal a) = do
                       case Map.lookup (Literal a) env of
                         Nothing -> Nothing
                         Just True -> return True
-hornMark (xs@())
-
