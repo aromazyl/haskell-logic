@@ -15,10 +15,11 @@ import qualified Data.Map as Map
 
 -- data Atom = Atom Char | Atom String deriving (Eq, Show)
 
-data Atom = Atom String | Atomic Bool deriving (Eq)
+data Atom = AtomBool Bool | AtomString String deriving (Eq)
 
 instance Show Atom where
-  show (Atom a) = show a
+  show (AtomBool a) = show a
+  show (AtomString s) = show s
 
 data Expr = Literal Atom
           | Contradiction Expr
@@ -73,14 +74,14 @@ makeCNF expr = case expr of
 
 hornP :: Expr -> Bool
 hornP expr = case expr of
-               (Literal Atom _) -> True
+               (Literal a) -> True
                _ -> False
 
 hornA :: Expr -> Bool
 hornA expr = case hornP expr of
                True -> True
                _    -> case expr of
-                         Conjunction a b -> hornP && (hornA b)
+                         Conjunction a b -> (hornP a) && (hornA b)
                          _ -> False
 
 hornC :: Expr -> Bool
@@ -101,13 +102,14 @@ type Eval a = ReaderT Env Identity a
 type Value = Maybe Bool
 
 runEval :: Env -> Eval a -> a
-runEval env = runIdentity . runReaderT
+runEval env ev = runIdentity $ (runReaderT ev) env
 
 hornMark :: Expr -> Eval Value
-hornMark (Literal Atom True) = return . return True
-hornMark (Literal Atom False) = return . return False
+hornMark (Literal (AtomBool True)) = return $ Just True
+hornMark (Literal (AtomBool False)) = return $ Just False
 hornMark (Literal a) = do
                       env <- ask
                       case Map.lookup (Literal a) env of
-                        Nothing -> Nothing
-                        Just True -> return True
+                        Nothing -> return $ Nothing
+                        Just True -> return $ Just True
+                        Just False -> return $ Just False
