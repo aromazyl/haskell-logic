@@ -11,7 +11,6 @@ module Logic where
 import Control.Monad.Except
 import Control.Monad.Identity
 import Control.Monad.Reader
-import qualified Data.Map as Map
 
 -- data Atom = Atom Char | Atom String deriving (Eq, Show)
 
@@ -95,11 +94,12 @@ hornH expr = case hornC expr of
                _    -> case expr of 
                          Conjunction a b -> (hornC a) && (hornH b)
 
-type Env = Map.Map Expr Value
+type Value = Maybe Bool
+
+type Env = [(Expr, Value)]
 
 type Eval a = ReaderT Env Identity a
 
-type Value = Maybe Bool
 
 runEval :: Env -> Eval a -> a
 runEval env ev = runIdentity $ (runReaderT ev) env
@@ -108,8 +108,8 @@ hornMark :: Expr -> Eval Value
 hornMark (Literal (AtomBool True)) = return $ Just True
 hornMark (Literal (AtomBool False)) = return $ Just False
 hornMark (Literal a) = do
-                      env <- ask
-                      case Map.lookup (Literal a) env of
-                        Nothing -> return $ Nothing
-                        Just True -> return $ Just True
-                        Just False -> return $ Just False
+  env <- ask
+  case lookup (Literal a) env of
+    Nothing -> return $ Nothing
+    (Just (Just True)) -> return $ Just True
+    (Just (Just False)) -> return $ Just False
