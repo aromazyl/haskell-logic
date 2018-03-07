@@ -113,3 +113,33 @@ hornMark (Literal a) = do
     Nothing -> return $ Nothing
     (Just (Just True)) -> return $ Just True
     (Just (Just False)) -> return $ Just False
+    (Just Nothing)      -> return $ Nothing
+hornMark (Contradiction expr) = do
+  env <- ask
+  case lookup expr env of
+    (Just (Just True)) -> return $ Just False
+    (Just (Just False) -> return $ Just True
+    (Just Nothing) -> return $ Nothing
+    Nothing -> local (const (env ++ (expr, hornMark expr)))
+      hornMark expr
+
+hornMark a@(Conjunction expr1 expr2) = do
+  env <- ask
+  res1 <- hornMark expr1
+  res2 <- hornMark expr2
+  case (res1, res2) of
+    (Just True, Just True) -> local (const (env ++ (a, Just True))) (return $ Just True)
+    (_, Just False) -> local (const (env ++ (a, Just False))) (return $ Just False)
+    (Just False, _) -> local (const (env ++ (a, Just False))) (return $ Just False)
+    (Nothing, _) -> local (const (env ++ (a, Nothing))) (return $ Nothing)
+    (_, Nothing) -> local (const (env ++ (a, Nothing))) (return $ Nothing)
+
+hornMark a@(Deduction exp1 exp2) = do
+  env <- ask
+  res1 <- hornMark exp1
+  case res1 of
+    (Just True) -> local (const (env ++ (exp2, Just True))) (return $ Just True)
+    (Just False) -> return $ Just False
+    Nothing -> return $ Nothing
+
+hornMark a@(Disjunction exp1 exp2) = return $ Just False
